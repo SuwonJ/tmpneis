@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <title>tmp세특 편집기</title>
+        <link
+            href="https://cdn.jsdelivr.net/gh/sun-typeface/SUITE@2/fonts/static/woff2/SUITE.css"
+            rel="stylesheet"
+        />
+        <style>
+            body {
+                font-family: "SUITE", sans-serif;
+                background-color: #f4f7fc;
+                color: #000;
+                margin: 0;
+                padding: 20px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+                color: #0e3ca0;
+                margin-bottom: 20px;
+            }
+
+            textarea {
+                font-family: "SUITE", sans-serif;
+                width: 90%;
+                max-width: 800px;
+                height: 150px;
+                margin-top: 10px;
+                padding: 12px;
+                font-size: 1rem;
+                border-radius: 8px;
+                border: 1px solid #ccc;
+                box-sizing: border-box;
+                transition: border-color 0.3s;
+            }
+
+            textarea:focus {
+                border-color: #6200ee;
+            }
+
+            .byte-display {
+                font-size: 1.5rem;
+                font-weight: bold;
+                margin: 10px 0;
+                text-align: center;
+            }
+
+            .paragraph-byte {
+                font-size: 1rem;
+                margin: 5px 0;
+            }
+
+            table {
+                margin-top: 20px;
+                width: 90%;
+                max-width: 800px;
+                border-collapse: collapse;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                border-radius: 8px;
+                overflow: hidden;
+            }
+
+            td,
+            th {
+                padding: 12px;
+                text-align: center;
+                border: 1px solid #ddd;
+                font-size: 1.1rem;
+            }
+
+            th {
+                background-color: #f1f1f1;
+            }
+
+            .difference {
+                font-size: 1rem;
+                font-weight: normal;
+            }
+
+            .difference.green {
+                color: #388e3c;
+            }
+
+            .difference.red {
+                color: #b00020;
+            }
+
+            .green-bg {
+                background-color: #e0f8e0;
+            }
+
+            .red-bg {
+                background-color: #f8e0e0;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>tmp세특 편집기</h1>
+        <div class="byte-display">
+            <span id="autonomous">0 Bytes</span><br />
+        </div>
+        <textarea id="counter" placeholder="내용을 입력하세요..."></textarea>
+
+        <div id="paragraphs-byte"></div>
+        <div class="byte-display">
+            <span id="selected-bytes">0 Bytes 선택됨</span><br />
+        </div>
+
+        <table>
+            <tr>
+                <th>항목</th>
+                <th>차이</th>
+            </tr>
+            <tr>
+                <td>자율활동</td>
+                <td>
+                    <span id="autonomous-difference" class="difference">0 Bytes</span>
+                </td>
+            </tr>
+            <tr>
+                <td>동아리활동</td>
+                <td>
+                    <span id="club-difference" class="difference">0 Bytes</span>
+                </td>
+            </tr>
+            <tr>
+                <td>진로활동</td>
+                <td>
+                    <span id="career-difference" class="difference">0 Bytes</span>
+                </td>
+            </tr>
+            <tr>
+                <td>교과세특</td>
+                <td>
+                    <span id="subject-difference" class="difference">0 Bytes</span>
+                </td>
+            </tr>
+            <tr>
+                <td>개인별세특</td>
+                <td>
+                    <span id="personal-difference" class="difference">0 Bytes</span>
+                </td>
+            </tr>
+        </table>
+
+        <script>
+            const textarea = document.getElementById("counter");
+            const paragraphsByteDisplay = document.getElementById("paragraphs-byte");
+
+            const maxBytes = {
+                autonomous: 1500,
+                club: 1500,
+                career: 2100,
+                subject: 1500,
+                personal: 1500,
+            };
+
+            function calculateByte(content) {
+                let english = content
+                    .replace(/[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/g, "")
+                    .replace(/[0-9]/g, "")
+                    .replace(/\s/g, "");
+                let korean = content
+                    .replace(/[a-zA-Z]/g, "")
+                    .replace(/[0-9]/g, "")
+                    .replace(/\s/g, "");
+                let number = content
+                    .replace(/[a-zA-Z|ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/g, "")
+                    .replace(/\s/g, "");
+
+                let result = english.length + korean.length * 3 + number.length;
+
+                return result;
+            }
+
+            function updateStatus() {
+                let content = textarea.value;
+                let byteCount = calculateByte(content);
+
+                let autonomousByte = byteCount;
+                let clubByte = byteCount;
+                let careerByte = byteCount;
+                let subjectByte = byteCount;
+                let personalByte = byteCount;
+
+                document.getElementById("autonomous").innerText = `${autonomousByte} Bytes`;
+
+                updateDifference(autonomousByte, "autonomous");
+                updateDifference(clubByte, "club");
+                updateDifference(careerByte, "career");
+                updateDifference(subjectByte, "subject");
+                updateDifference(personalByte, "personal");
+
+                updateParagraphsByte(content);
+            }
+
+            function updateDifference(byte, id) {
+                const differenceElement = document.getElementById(id + "-difference");
+
+                let difference = byte - maxBytes[id];
+                if (difference < 0) {
+                    differenceElement.innerText = `${Math.abs(difference)} Bytes 남음`;
+                    differenceElement.classList.add("green");
+                    differenceElement.classList.remove("red");
+                } else {
+                    differenceElement.innerText = `${difference} Bytes 초과`;
+                    differenceElement.classList.add("red");
+                    differenceElement.classList.remove("green");
+                }
+            }
+
+            function updateParagraphsByte(content) {
+                const paragraphs = content
+                    .split("\n")
+                    .filter((p) => p.trim() !== "");
+                paragraphsByteDisplay.innerHTML = "";
+
+                paragraphs.forEach((paragraph, index) => {
+                    const byteCount = calculateByte(paragraph);
+                    const paragraphDisplay = document.createElement("div");
+                    paragraphDisplay.className = "paragraph-byte";
+                    paragraphDisplay.innerText = `단락 ${index + 1}: ${byteCount} Bytes`;
+                    paragraphsByteDisplay.appendChild(paragraphDisplay);
+                });
+            }
+
+            textarea.addEventListener("input", updateStatus);
+
+            function calculateSelectedBytes() {
+                const selectedText = textarea.value.substring(
+                    textarea.selectionStart,
+                    textarea.selectionEnd,
+                );
+                const totalByteCount = calculateByte(textarea.value);
+                const remainingBytes = calculateByte(textarea.value) - calculateByte(selectedText);
+
+                if (selectedText.length === 0) {
+                    document.getElementById("selected-bytes").innerText =
+                        `0 Bytes 선택됨`;
+                } else {
+                    const selectedByteCount = calculateByte(selectedText);
+                    document.getElementById("selected-bytes").innerText =
+                        `${selectedByteCount} Bytes 선택됨, ${remainingBytes} Bytes`;
+                }
+            }
+
+            textarea.addEventListener("select", calculateSelectedBytes);
+        </script>
+    </body>
+</html>
