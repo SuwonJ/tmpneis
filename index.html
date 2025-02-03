@@ -223,21 +223,111 @@
             };
 
             function calculateByte(content) {
-                let english = content
-                    .replace(/[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/g, "")
-                    .replace(/[0-9]/g, "")
-                    .replace(/\s/g, "");
-                let korean = content
-                    .replace(/[a-zA-Z]/g, "")
-                    .replace(/[0-9]/g, "")
-                    .replace(/\s/g, "");
-                let number = content
-                    .replace(/[a-zA-Z|ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/g, "")
-                    .replace(/\s/g, "");
+                // Trim leading and trailing newlines
+                if (content == "\n" && content.startsWith("\n")) {
+                    content = content.slice(1);
+                }
+                if (content != "\n" && content.endsWith("\n")) {
+                    content = content.slice(0, -1);
+                }
 
-                let result = english.length + korean.length * 3 + number.length;
+                // Save the trimmed content to local storage
+                localStorage.setItem("save", content);
 
-                return result;
+                // 수학 기호와 그리스 문자를 정의
+                var math_symbols =
+                    /[\+\-\*\/=<>∞∑∏∫√∂∆πθΩαβγδεζηλμνξοπρστυφχψω·]/g;
+                var other_symbols = /[‘’“”]/g;
+
+                // 각 카테고리 별 필터링
+                var english = content
+                    .replace(/[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/g, "") // 한글 제거
+                    .replace(/[0-9]/g, "") // 숫자 제거
+                    .replace(math_symbols, "") // 수학 기호 제거
+                    .replace(
+                        /[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/g,
+                        "",
+                    ) // 특수문자 제거
+                    .replace(/\s/g, "") // 공백 제거
+                    .replace(other_symbols, ""); // 기타 기호 제거
+
+                var korean = content
+                    .replace(/[a-zA-Z]/g, "") // 영문 제거
+                    .replace(/[0-9]/g, "") // 숫자 제거
+                    .replace(math_symbols, "") // 수학 기호 제거
+                    .replace(
+                        /[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/g,
+                        "",
+                    ) // 특수문자 제거
+                    .replace(/\s/g, "") // 공백 제거
+                    .replace(other_symbols, ""); // 기타 기호 제거
+
+                var number = content
+                    .replace(/[a-zA-Z]/g, "") // 영문 제거
+                    .replace(/[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/g, "") // 한글 제거
+                    .replace(math_symbols, "") // 수학 기호 제거
+                    .replace(
+                        /[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/g,
+                        "",
+                    ) // 특수문자 제거
+                    .replace(/\s/g, "") // 공백 제거
+                    .replace(other_symbols, ""); // 기타 기호 제거
+
+                var onebyte_special = content
+                    .replace(/[a-zA-Z]/g, "") // 영문 제거
+                    .replace(/[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/g, "") // 한글 제거
+                    .replace(/[0-9]/g, "") // 숫자 제거
+                    .replace(/[\n\t\r\s]/g, ""); // 공백 및 줄바꿈 제거
+
+                var threebyte_special = content
+                    .replace(/[a-zA-Z]/g, "") // 영문 제거
+                    .replace(/[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/g, "") // 한글 제거
+                    .replace(/[0-9]/g, "") // 숫자 제거
+                    .replace(math_symbols, "") // 수학 기호 제거
+                    .replace(
+                        /[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/g,
+                        "",
+                    ) // 특수문자 제거
+                    .replace(/[\n\t\r\s]/g, "") // 공백 및 줄바꿈 제거
+                    .replace(other_symbols, ""); // 기타 기호 제거
+
+                var space = content
+                    .replace(/[a-zA-Z]/g, "") // 영문 제거
+                    .replace(/[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/g, "") // 한글 제거
+                    .replace(/[0-9]/g, "") // 숫자 제거
+                    .replace(math_symbols, "") // 수학 기호 제거
+                    .replace(
+                        /[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/g,
+                        "",
+                    ) // 특수문자 제거
+                    .replace(other_symbols, "") // 기타 기호 제거
+                    .replace(/[^\s]/g, "") // 공백 이외의 문자 제거
+                    .replace(/[\n\r]/g, ""); // 줄바꿈 문자 제거
+
+                var line = content
+                    .replace(/[a-zA-Z]/g, "") // 영문 제거
+                    .replace(/[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/g, "") // 한글 제거
+                    .replace(
+                        /[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/g,
+                        "",
+                    ) // 특수문자 제거
+                    .replace(/[0-9]/g, "") // 숫자 제거
+                    .replace(math_symbols, "") // 수학 기호 제거
+                    .replace(/[^\n]/g, "") // 줄바꿈 이외 문자 제거
+                    .replace(other_symbols, ""); // 기타 기호 제거
+
+                // 최종 계산
+                var result =
+                    english.length +
+                    korean.length * 3 +
+                    number.length +
+                    onebyte_special.length +
+                    threebyte_special.length * 3 +
+                    space.length +
+                    line.length * 2;
+
+                // Display the result
+                return result; // 최종 바이트 수를 반환
             }
 
             function updateStatus() {
