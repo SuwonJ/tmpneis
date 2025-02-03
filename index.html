@@ -19,6 +19,14 @@
                 display: flex;
                 flex-direction: column;
                 align-items: center;
+                transition:
+                    background-color 0.3s,
+                    color 0.3s;
+            }
+
+            body.dark-mode {
+                background-color: #111111;
+                color: #fff;
             }
 
             h1 {
@@ -31,7 +39,7 @@
                 font-family: "SUITE", sans-serif;
                 width: 90%;
                 max-width: 800px;
-                height: 150px;
+                height: 350px;
                 margin-top: 10px;
                 padding: 12px;
                 font-size: 1rem;
@@ -99,10 +107,44 @@
             .red-bg {
                 background-color: #f8e0e0;
             }
+
+            /* 다크모드 스타일 */
+            body.dark-mode h1 {
+                color: #fff;
+            }
+
+            body.dark-mode textarea {
+                background-color: #444;
+                border-color: #666;
+                color: #fff;
+            }
+
+            body.dark-mode table {
+                background-color: #333;
+                color: #fff;
+            }
+
+            body.dark-mode th {
+                background-color: #444;
+            }
+
+            body.dark-mode td,
+            body.dark-mode th {
+                border-color: #555;
+            }
+
+            body.dark-mode .difference.green {
+                color: #66bb6a;
+            }
+
+            body.dark-mode .difference.red {
+                color: #e57373;
+            }
         </style>
     </head>
     <body>
         <h1>tmp세특 편집기</h1>
+
         <div class="byte-display">
             <span id="autonomous">0 Bytes</span><br />
         </div>
@@ -121,7 +163,9 @@
             <tr>
                 <td>자율활동</td>
                 <td>
-                    <span id="autonomous-difference" class="difference">0 Bytes</span>
+                    <span id="autonomous-difference" class="difference"
+                        >0 Bytes</span
+                    >
                 </td>
             </tr>
             <tr>
@@ -133,26 +177,42 @@
             <tr>
                 <td>진로활동</td>
                 <td>
-                    <span id="career-difference" class="difference">0 Bytes</span>
+                    <span id="career-difference" class="difference"
+                        >0 Bytes</span
+                    >
                 </td>
             </tr>
             <tr>
                 <td>교과세특</td>
                 <td>
-                    <span id="subject-difference" class="difference">0 Bytes</span>
+                    <span id="subject-difference" class="difference"
+                        >0 Bytes</span
+                    >
                 </td>
             </tr>
             <tr>
                 <td>개인별세특</td>
                 <td>
-                    <span id="personal-difference" class="difference">0 Bytes</span>
+                    <span id="personal-difference" class="difference"
+                        >0 Bytes</span
+                    >
                 </td>
             </tr>
         </table>
-
+        <button
+            id="darkModeToggle"
+            style="
+                padding: 10px 20px;
+                margin: 340px 0px 0px 0px;
+                border-radius: 16px;
+            "
+        >
+            밤늦게까지수정해야합니다
+        </button>
         <script>
             const textarea = document.getElementById("counter");
-            const paragraphsByteDisplay = document.getElementById("paragraphs-byte");
+            const paragraphsByteDisplay =
+                document.getElementById("paragraphs-byte");
 
             const maxBytes = {
                 autonomous: 1500,
@@ -190,7 +250,8 @@
                 let subjectByte = byteCount;
                 let personalByte = byteCount;
 
-                document.getElementById("autonomous").innerText = `${autonomousByte} Bytes`;
+                document.getElementById("autonomous").innerText =
+                    `${autonomousByte} Bytes`;
 
                 updateDifference(autonomousByte, "autonomous");
                 updateDifference(clubByte, "club");
@@ -202,7 +263,9 @@
             }
 
             function updateDifference(byte, id) {
-                const differenceElement = document.getElementById(id + "-difference");
+                const differenceElement = document.getElementById(
+                    id + "-difference",
+                );
 
                 let difference = byte - maxBytes[id];
                 if (difference < 0) {
@@ -239,7 +302,8 @@
                     textarea.selectionEnd,
                 );
                 const totalByteCount = calculateByte(textarea.value);
-                const remainingBytes = calculateByte(textarea.value) - calculateByte(selectedText);
+                const remainingBytes =
+                    calculateByte(textarea.value) - calculateByte(selectedText);
 
                 if (selectedText.length === 0) {
                     document.getElementById("selected-bytes").innerText =
@@ -252,6 +316,17 @@
             }
 
             textarea.addEventListener("select", calculateSelectedBytes);
+
+            // 다크모드 토글
+            const darkModeToggle = document.getElementById("darkModeToggle");
+            darkModeToggle.addEventListener("click", () => {
+                document.body.classList.toggle("dark-mode");
+                darkModeToggle.innerText = document.body.classList.contains(
+                    "dark-mode",
+                )
+                    ? "라이트모드"
+                    : "밤늦게까지수정해야합니다";
+            });
         </script>
     </body>
 </html>
